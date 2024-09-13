@@ -1,0 +1,43 @@
+/* TODO: static link in binary! */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap');
+
+html {
+    height: 100%;
+    font-family: "EB Garamond", serif;
+    font-size: 120%;
+    background: whitesmoke;
+}
+
+body {
+    margin: 0
+}
+
+main {
+    padding: 5px 10px 10px 10px;
+}
+
+@media screen and (min-width: 768px) {
+    main {
+        max-width: 768px;
+        margin-left: 15%;
+        margin-top: 55px;
+        padding: 10px 20px 20px 20px;
+        rotate: -0.75deg;
+    }
+}
+
+.dropdowns {
+    list-style: none;
+    padding-inline-start: 20px;
+}
+
+hr {
+    border-color: magenta;
+    color: magenta;
+    width: 50%;
+    margin-left: 0;
+}
+
+a {
+    color: #AB00AA;
+}
