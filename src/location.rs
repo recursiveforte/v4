@@ -1,7 +1,8 @@
 use std::{env, mem};
+use std::cmp::max;
 use std::error::Error;
 use std::sync::{Arc, Mutex};
-use chrono::{DateTime, TimeZone, Utc};
+use chrono::{DateTime, TimeDelta, TimeZone, Utc};
 use isocountry::CountryCode;
 use crate::icloud::{ICloudSession, ICloudSessionOps};
 
@@ -89,7 +90,9 @@ pub fn get_location_text(location_state: Option<&LocationState>) -> String {
     let default_location_text = "I'm based in Burlington, Vermont".to_string();
 
     if let Some(state) = location_state {
-        let time_since_update = Utc::now() - state.last_updated_time;
+        let time_since_update = max(Utc::now() - state.last_updated_time, 
+                                    TimeDelta::new(0, 0)
+                                        .expect("time delta to succeed"));
         let (time_since_update, unit) =
             if time_since_update.num_minutes() < 60 {
                 (time_since_update.num_minutes(), "minutes")
