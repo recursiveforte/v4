@@ -17,7 +17,9 @@ pub struct ICloudSession {
     account_country_code: Option<String>,
     session_token: Option<String>,
     client: reqwest::Client,
-    web_service_urls: WebServiceUrls
+    web_service_urls: WebServiceUrls,
+    username: String,
+    password: String
 }
 
 #[derive(Debug)]
@@ -41,10 +43,11 @@ impl ICloudSessionOps for ICloudSession {
             account_country_code: None,
             session_token: None,
             client: reqwest::ClientBuilder::new().cookie_provider(cookies.clone()).build()?,
-            web_service_urls: WebServiceUrls::new()
+            web_service_urls: WebServiceUrls::new(),
+            username, password
         };
 
-        state.auth_step1(username, password).await?;
+        state.auth_step1().await?;
         state.auth_step2().await?;
 
         Ok(state)
@@ -69,22 +72,36 @@ impl ICloudSessionOps for ICloudSession {
             device_list_version: u32
         }
 
-        let res = self.client
-            .post(
-                self.web_service_urls.findme.to_owned().ok_or("need findme url!")?
-                    + "/fmipservice/client/web/refreshClient")
-            .header("Content-Type", "application/json")
-            .header("Accept", "*/*")
-            .header("Origin", "https://www.icloud.com")
-            .json(&RefreshClientBodyParams {
-                client_context: RefreshClientContext {
-                    fmly: false,
-                    should_locate: true,
-                    selected_device: "all".to_string(),
-                    device_list_version: 1
-                }
-            })
-            .send().await?;
+        let post = | session: &ICloudSession | -> Result<_, Box<dyn Error>> {
+            Ok(session.client
+                .post(
+                    session.web_service_urls.findme.to_owned().ok_or("need findme url!")?
+                        + "/fmipservice/client/web/refreshClient")
+                .header("Content-Type", "application/json")
+                .header("Accept", "*/*")
+                .header("Origin", "https://www.icloud.com")
+                .json(&RefreshClientBodyParams {
+                    client_context: RefreshClientContext {
+                        fmly: false,
+                        should_locate: true,
+                        selected_device: "all".to_string(),
+                        device_list_version: 1
+                    }
+                })
+                .send())
+        };
+
+        let mut res = post(self)?.await?;
+
+        if res.status() == 450 || res.status() == 421 {
+            if res.status() == 450 {
+                self.auth_step1().await?;
+            }
+
+            self.auth_step2().await?;
+            
+            res = post(self)?.await?;
+        }
 
         #[derive(Serialize, Deserialize, Debug)]
         struct FindMyResponse {
@@ -113,7 +130,7 @@ pub struct FindMyDeviceLocation {
 
 impl ICloudSession {
 
-    async fn auth_step1(&mut self, username: String, password: String) -> Result<(), Box<dyn Error>> {
+    async fn auth_step1(&mut self) -> Result<(), Box<dyn Error>> {
         #[derive(Serialize, Deserialize)]
         struct LoginBodyParams {
             #[serde(rename = "rememberMe")]
@@ -142,8 +159,8 @@ impl ICloudSession {
             .header("X-Apple-Widget-Key", "d39ba9916b7251055b22c7f910e2ea796ee65e98b2ddecea8f5dde8d9d1a815d")
             .json(&LoginBodyParams {
                 remember_me: true,
-                account_name: username,
-                password,
+                account_name: self.username.clone(),
+                password: self.password.clone(),
             })
             .query(&LoginQueryParams { is_remember_me_enabled: true })
             .send().await?;

@@ -120,7 +120,7 @@ async fn main() {
 
             let state = state.clone();
             let _ = update_location(state.icloud_session, state.location_state).await
-                .or_else(|_| { eprintln!("Updating location failed!"); Err(()) } );
+                .or_else(|err| { eprintln!("Updating location failed! {}", err.to_string()); Err(()) } );
         }
     };
 
