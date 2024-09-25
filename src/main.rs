@@ -60,22 +60,13 @@ async fn index(State(state): State<AppState>) -> Html<String> {
     let random_artist_1 = random_artist();
     let random_artist_2 = random_artist();
 
-    let time_ago = Utc::now().with_timezone(&Eastern).date_naive() -
-        NaiveDate::from_ymd_opt(2024, 09, 12).expect("a valid date");
-    let time_ago = match time_ago {
-        _ if time_ago == chrono::Duration::days(0) => "today".to_string(),
-        _ if time_ago == chrono::Duration::days(1) =>  "yesterday".to_string(),
-        _ => time_ago.num_days().to_string() + " days ago"
-    };
-
     base_html("Cheru Berhanu".to_string(),
                    format!(
                        include_str!("include/index.html"),
                        greeting = greeting,
                        location_text = location_text,
                        random_artist_1 = random_artist_1, random_artist_2 = random_artist_2,
-                       year = year,
-                       time_ago = time_ago
+                       year = year
                    ))
 }
 
@@ -105,6 +96,8 @@ async fn main() {
 
         let port = env::var("PORT")
             .map_or_else(|_| "3000".to_string(), |x| x);
+        
+        println!("Starting server on port {port}!");
 
         let listener =
             tokio::net::TcpListener::bind("0.0.0.0:".to_string() + &port).await.unwrap();
