@@ -113,7 +113,7 @@ async fn main() {
     };
 
     let location_update_task = async {
-        let mut interval = tokio::time::interval(time::Duration::from_secs(60 * 60));
+        let mut interval = tokio::time::interval(time::Duration::from_secs(60 * 60 * 24));
 
         loop {
             interval.tick().await;
