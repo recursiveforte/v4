@@ -1072,25 +1072,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust-site"
-version = "0.1.0"
-dependencies = [
- "axum",
- "chrono",
- "chrono-tz",
- "csv",
- "dotenv",
- "geoutils",
- "isocountry",
- "rand",
- "reqwest",
- "reqwest_cookie_store",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1573,6 +1554,25 @@ dependencies = [
  "form_urlencoded",
  "idna 0.5.0",
  "percent-encoding",
+]
+
+[[package]]
+name = "v4"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "chrono-tz",
+ "csv",
+ "dotenv",
+ "geoutils",
+ "isocountry",
+ "rand",
+ "reqwest",
+ "reqwest_cookie_store",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
