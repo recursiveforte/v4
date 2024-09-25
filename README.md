@@ -5,7 +5,7 @@
 to build:
 ```shell
 curl https://download.geonames.org/export/dump/allCountries.zip -o allCountries.zip
-unzip allCountries.zip -d rust-site/src/include/
+unzip allCountries.zip -d src/include/
 cargo build --release
 ```
 
